@@ -1,4 +1,4 @@
-from utils.profiling import get_data_quality
+from utils.profiling import get_data_quality, detect_outliers
 import plotly.express as px
 import streamlit as st
 import pandas as pd
@@ -110,3 +110,33 @@ if uploaded_file is not None:
 
     else:
         st.info("No categorical features found.")
+
+    # Outlier Analysis
+    st.header("Outlier Analysis")
+    numeric_columns = df.select_dtypes(include="number").columns.tolist()
+
+    if numeric_columns:
+        selected_feature = st.selectbox("Select a numerical feature", numeric_columns, 
+                                        key="outlier_feature")
+        result = detect_outliers(df[selected_feature])
+
+        # Statistics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Q1", f"{result['q1']:.2f}")
+        col2.metric("Q3", f"{result['q3']:.2f}")
+        col3.metric("Outliers", f"{result['outlier_count']:,}")
+        col4.metric("Outlier %", f"{result['outlier_percentage']:.2f}%")
+
+        # Bounds
+        st.subheader("IQR Boundaries")
+        col1, col2 = st.columns(2)
+        col1.metric("Lower Bound", f"{result['lower_bound']:.2f}")
+        col2.metric("Upper Bound", f"{result['upper_bound']:.2f}")
+
+        # Box plot
+        fig = px.box(df, y=selected_feature, points="outliers", 
+                     title=f"Outlier Analysis — {selected_feature}")
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.info("No numerical features found.")

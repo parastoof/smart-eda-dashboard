@@ -13,3 +13,32 @@ def get_data_quality(df: pd.DataFrame) -> pd.DataFrame:
     })
 
     return quality
+
+
+def detect_outliers(series: pd.Series) -> dict:
+    series = series.dropna()
+
+    q1 = series.quantile(0.25)
+    q3 = series.quantile(0.75)
+
+    iqr = q3 - q1
+
+    lower_bound = q1 - 1.5 * iqr
+    upper_bound = q3 + 1.5 * iqr
+
+    outliers = series[
+        (series < lower_bound) |
+        (series > upper_bound)
+    ]
+
+    return {
+        "q1": q1,
+        "q3": q3,
+        "iqr": iqr,
+        "lower_bound": lower_bound,
+        "upper_bound": upper_bound,
+        "outlier_count": len(outliers),
+        "outlier_percentage": (
+            len(outliers) / len(series) * 100
+        )
+    }
