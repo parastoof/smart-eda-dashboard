@@ -1,6 +1,7 @@
+from utils.profiling import get_data_quality
+import plotly.express as px
 import streamlit as st
 import pandas as pd
-from utils.profiling import get_data_quality
 
 st.set_page_config(page_title="Smart EDA Dashboard", page_icon="📊", layout="wide")
 st.title("Smart EDA Dashboard")
@@ -42,3 +43,27 @@ if uploaded_file is not None:
     st.header("Data Quality")
     quality_df = get_data_quality(df)
     st.dataframe(quality_df, use_container_width=True, hide_index=True)
+
+    # Numerical Analysis
+    st.header("Numerical Analysis")
+    numeric_columns = df.select_dtypes(include="number").columns.tolist()
+    if numeric_columns:
+        selected_feature = st.selectbox("Select a numerical feature", numeric_columns)
+        series = df[selected_feature].dropna()
+
+        # Statistics
+        col1, col2, col3, col4, col5 = st.columns(5)
+        col1.metric("Mean", f"{series.mean():.2f}")
+        col2.metric("Median", f"{series.median():.2f}")
+        col3.metric("Std", f"{series.std():.2f}")
+        col4.metric("Min", f"{series.min():.2f}")
+        col5.metric("Max", f"{series.max():.2f}")
+
+        # Histogram
+        fig_hist = px.histogram(df, x=selected_feature, 
+                                title=f"Distribution of {selected_feature}", 
+                                marginal="box")
+        st.plotly_chart(fig_hist, use_container_width=True)
+
+    else:
+        st.info("No numerical features found.")
