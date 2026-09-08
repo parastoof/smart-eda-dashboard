@@ -67,3 +67,46 @@ if uploaded_file is not None:
 
     else:
         st.info("No numerical features found.")
+
+
+    # --------------------------------------------------
+    # Categorical Analysis
+    # --------------------------------------------------
+
+    st.header("Categorical Analysis")
+
+    categorical_columns = df.select_dtypes(include=["object", "category"]).columns.tolist()
+
+    if categorical_columns:
+        selected_feature = st.selectbox("Select a categorical feature", categorical_columns, 
+                                        key="categorical_feature")
+        series = df[selected_feature]
+
+        # Statistics
+        unique_values = series.nunique()
+        missing_values = series.isna().sum()
+        if not series.dropna().empty:
+            most_frequent = series.mode().iloc[0]
+        else:
+            most_frequent = "N/A"
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Unique Categories", f"{unique_values:,}")
+        col2.metric("Missing Values", f"{missing_values:,}")
+        col3.metric("Most Frequent", str(most_frequent))
+
+        # Category distribution
+        value_counts = (series.value_counts(dropna=False).reset_index())
+        value_counts.columns = ["Category", "Count"]
+
+        # Bar chart
+        fig = px.bar(value_counts.head(20), x="Category", y="Count", 
+                     title=f"Distribution of {selected_feature}")
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Table
+        st.subheader("Category Distribution")
+        st.dataframe(value_counts, use_container_width=True, hide_index=True)
+
+    else:
+        st.info("No categorical features found.")
