@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-
+from utils.profiling import get_data_quality
 
 st.set_page_config(page_title="Smart EDA Dashboard", page_icon="📊", layout="wide")
 st.title("Smart EDA Dashboard")
@@ -37,3 +37,8 @@ if uploaded_file is not None:
     # Data Preview
     st.subheader("Data Preview")
     st.dataframe(df.head(10), use_container_width=True)
+    
+    # Data Quality
+    st.header("Data Quality")
+    quality_df = get_data_quality(df)
+    st.dataframe(quality_df, use_container_width=True, hide_index=True)
