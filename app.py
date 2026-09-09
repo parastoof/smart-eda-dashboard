@@ -1,4 +1,5 @@
 from utils.profiling import get_data_quality, detect_outliers, detect_target_type
+from utils.visualization import create_histogram, create_bar_chart, create_boxplot, create_correlation_heatmap, create_target_classification_chart, create_target_regression_chart
 import plotly.express as px
 import streamlit as st
 import pandas as pd
@@ -71,9 +72,7 @@ if uploaded_file is not None:
             st.dataframe(stats_df, use_container_width=True, hide_index=True)
 
             # Histogram
-            fig_hist = px.histogram(df, x=selected_feature, 
-                                    title=f"Distribution of {selected_feature}", 
-                                    marginal="box")
+            fig_hist = create_histogram(df, selected_feature)
             st.plotly_chart(fig_hist, use_container_width=True)
 
         else:
@@ -116,8 +115,7 @@ if uploaded_file is not None:
             value_counts.columns = ["Category", "Count"]
 
             # Bar chart
-            fig = px.bar(value_counts.head(20), x="Category", y="Count", 
-                        title=f"Distribution of {selected_feature}")
+            fig = create_bar_chart(value_counts, selected_feature)
             st.plotly_chart(fig, use_container_width=True)
 
             # Table
@@ -152,8 +150,7 @@ if uploaded_file is not None:
             st.dataframe(outlier_stats_df, use_container_width=True, hide_index=True)
 
             # Box plot
-            fig = px.box(df, x=selected_feature, points="outliers", 
-                        title=f"Outlier Analysis — {selected_feature}")
+            fig = create_boxplot(df, selected_feature)
             st.plotly_chart(fig, use_container_width=True)
 
         else:
@@ -165,10 +162,7 @@ if uploaded_file is not None:
         numeric_df = df.select_dtypes(include="number")
         if numeric_df.shape[1] > 1:
             correlation_matrix = numeric_df.corr()
-            fig = px.imshow(correlation_matrix, text_auto=".2f",
-                            aspect="auto", 
-                            color_continuous_scale="RdBu_r", 
-                            title="Correlation Matrix")
+            fig = create_correlation_heatmap(correlation_matrix)
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Not enough numerical features for correlation analysis.")
@@ -198,7 +192,7 @@ if uploaded_file is not None:
             st.dataframe(metrics_df, use_container_width=True, hide_index=True)
         
             # Distribution
-            fig = px.bar(value_counts, x="Class", y="Count", title=f"Target Distribution — {target_column}")
+            fig = create_target_classification_chart(value_counts, target_column)
             st.plotly_chart(fig, use_container_width=True)
             st.dataframe(value_counts, use_container_width=True, hide_index=True)
         
@@ -214,9 +208,5 @@ if uploaded_file is not None:
             )
             st.dataframe(summary_df, use_container_width=True, hide_index=True)
 
-            fig = px.histogram(target_clean, 
-                            x=target_column, 
-                            marginal="box", 
-                            title=f"Target Distribution — {target_column}")
-        
+            fig = create_target_regression_chart(target_clean, target_column)
             st.plotly_chart(fig, use_container_width=True)
