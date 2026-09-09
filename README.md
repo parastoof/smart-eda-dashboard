@@ -22,10 +22,7 @@ Streamlit, Pandas, and Plotly.
 - Python
 - Streamlit
 - Pandas
-- NumPy
 - Plotly
-- Scikit-learn
-- OpenPyXL
 
 ## Project Structure
 
@@ -45,7 +42,7 @@ smart-eda-dashboard/
 Clone the repository:
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone git@github.com:parastoof/smart-eda-dashboard.git
 cd smart-eda-dashboard
 ````
 
