@@ -90,7 +90,7 @@ The application can be deployed using Streamlit Community Cloud.
 
 ## Demo
 
-[Live Demo](YOUR_STREAMLIT_APP_URL)
+[Live Demo](https://smart-eda-dashboard-parastoof.streamlit.app/)
 
 ## Screenshot
 
