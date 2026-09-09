@@ -94,7 +94,7 @@ The application can be deployed using Streamlit Community Cloud.
 
 ## Screenshot
 
-![Smart EDA Dashboard](./assets/dashboard.jpg)
+[Smart EDA Dashboard](./assets/dashboard.jpg)
 
 ## License
 
