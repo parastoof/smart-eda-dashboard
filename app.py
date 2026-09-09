@@ -27,13 +27,17 @@ if uploaded_file is not None:
     missing_values = df.isna().sum().sum()
     duplicates = df.duplicated().sum()
 
-    # Display metrics
-    col1, col2, col3, col4 = st.columns(4)
-
-    col1.metric("Rows", f"{rows:,}")
-    col2.metric("Columns", columns)
-    col3.metric("Missing Values", f"{missing_values:,}")
-    col4.metric("Duplicates", f"{duplicates:,}")
+    # Display metrics in a table
+    metrics_df = pd.DataFrame(
+        {
+            "Metric": ["Value"],
+            "Rows": f"{rows:,}",
+            "Columns": columns,
+            "Missing Values": f"{missing_values:,}",
+            "Duplicates": f"{duplicates:,}",
+        }
+    )
+    st.dataframe(metrics_df, use_container_width=True, hide_index=True)
 
     # Data Preview
     st.subheader("Data Preview")
@@ -51,13 +55,18 @@ if uploaded_file is not None:
         selected_feature = st.selectbox("Select a numerical feature", numeric_columns)
         series = df[selected_feature].dropna()
 
-        # Statistics
-        col1, col2, col3, col4, col5 = st.columns(5)
-        col1.metric("Mean", f"{series.mean():.2f}")
-        col2.metric("Median", f"{series.median():.2f}")
-        col3.metric("Std", f"{series.std():.2f}")
-        col4.metric("Min", f"{series.min():.2f}")
-        col5.metric("Max", f"{series.max():.2f}")
+        # Statistics in table format
+        stats_df = pd.DataFrame(
+            {
+                "Statistic": ["Value" ],
+                "Mean": f"{series.mean():.2f}",
+                "Median": f"{series.median():.2f}",
+                "Std": f"{series.std():.2f}",
+                "Min": f"{series.min():.2f}",
+                "Max": f"{series.max():.2f}"
+            }
+        )
+        st.dataframe(stats_df, use_container_width=True, hide_index=True)
 
         # Histogram
         fig_hist = px.histogram(df, x=selected_feature, 
@@ -90,10 +99,17 @@ if uploaded_file is not None:
         else:
             most_frequent = "N/A"
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Unique Categories", f"{unique_values:,}")
-        col2.metric("Missing Values", f"{missing_values:,}")
-        col3.metric("Most Frequent", str(most_frequent))
+        summary_df = pd.DataFrame(
+            [
+                {
+                    "Metric": "Category Summary",
+                    "Unique Categories": f"{unique_values:,}",
+                    "Missing Values": f"{missing_values:,}",
+                    "Most Frequent": str(most_frequent),
+                }
+            ]
+        )
+        st.dataframe(summary_df, use_container_width=True, hide_index=True)
 
         # Category distribution
         value_counts = (series.value_counts(dropna=False).reset_index())
@@ -121,22 +137,38 @@ if uploaded_file is not None:
         result = detect_outliers(df[selected_feature])
 
         # Statistics
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Q1", f"{result['q1']:.2f}")
-        col2.metric("Q3", f"{result['q3']:.2f}")
-        col3.metric("Outliers", f"{result['outlier_count']:,}")
-        col4.metric("Outlier %", f"{result['outlier_percentage']:.2f}%")
-
-        # Bounds
-        st.subheader("IQR Boundaries")
-        col1, col2 = st.columns(2)
-        col1.metric("Lower Bound", f"{result['lower_bound']:.2f}")
-        col2.metric("Upper Bound", f"{result['upper_bound']:.2f}")
+        outlier_stats_df = pd.DataFrame(
+            {
+                "Metric": ["Value"],
+                "Q1": f"{result['q1']:.2f}",
+                "Q3": f"{result['q3']:.2f}",
+                "Lower Bound": f"{result['lower_bound']:.2f}",
+                "Upper Bound": f"{result['upper_bound']:.2f}",
+                "Outliers": f"{result['outlier_count']:,}",
+                "Outlier %": f"{result['outlier_percentage']:.2f}%"
+            }
+        )
+        st.dataframe(outlier_stats_df, use_container_width=True, hide_index=True)
 
         # Box plot
-        fig = px.box(df, y=selected_feature, points="outliers", 
+        fig = px.box(df, x=selected_feature, points="outliers", 
                      title=f"Outlier Analysis — {selected_feature}")
         st.plotly_chart(fig, use_container_width=True)
 
     else:
         st.info("No numerical features found.")
+
+    # Correlation Analysis
+    st.header("Correlation Analysis")
+    numeric_df = df.select_dtypes(include="number")
+    if numeric_df.shape[1] > 1:
+        correlation_matrix = numeric_df.corr()
+        fig = px.imshow(correlation_matrix, text_auto=".2f",
+                        aspect="auto", 
+                        color_continuous_scale="RdBu_r", 
+                        title="Correlation Matrix")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Not enough numerical features for correlation analysis.")
+    
+    
