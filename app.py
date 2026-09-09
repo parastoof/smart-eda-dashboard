@@ -1,4 +1,4 @@
-from utils.profiling import get_data_quality, detect_outliers
+from utils.profiling import get_data_quality, detect_outliers, detect_target_type
 import plotly.express as px
 import streamlit as st
 import pandas as pd
@@ -171,4 +171,39 @@ if uploaded_file is not None:
     else:
         st.info("Not enough numerical features for correlation analysis.")
     
+    # Target Analysis
+    st.header("Target Analysis")
+    target_column = st.selectbox("Select the target variable", df.columns, 
+                                 key="target_variable")
+    target = df[target_column]
+    target_type = detect_target_type(target)
+    st.write(f"Detected problem type: **{target_type}**")
     
+    if target_type == "Classification":
+        value_counts = (target.value_counts(dropna=False).reset_index())
+        value_counts.columns = ["Class", "Count"]
+
+        # Metrics
+        col1, col2 = st.columns(2)
+        col1.metric("Number of Classes", target.nunique())
+        col2.metric("Missing Values", target.isna().sum())
+    
+        # Distribution
+        fig = px.bar(value_counts, x="Class", y="Count", title=f"Target Distribution — {target_column}")
+        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(value_counts, use_container_width=True, hide_index=True)
+    
+    else:
+        target_clean = target.dropna()
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Mean", f"{target_clean.mean():.2f}")
+        col2.metric("Median", f"{target_clean.median():.2f}")
+        col3.metric("Std", f"{target_clean.std():.2f}")
+        col4.metric("Missing Values", target.isna().sum())
+
+        fig = px.histogram(target_clean, 
+                           x=target_column, 
+                           marginal="box", 
+                           title=f"Target Distribution — {target_column}")
+    
+        st.plotly_chart(fig, use_container_width=True)
