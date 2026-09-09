@@ -26,6 +26,7 @@ Streamlit, Pandas, and Plotly.
 
 ## Project Structure
 
+```text
 smart-eda-dashboard/
 │
 ├── app.py
@@ -36,6 +37,7 @@ smart-eda-dashboard/
     ├── __init__.py
     ├── profiling.py
     └── visualization.py
+```
 
 ## Installation
 
