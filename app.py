@@ -1,8 +1,9 @@
-from utils.profiling import get_data_quality, detect_outliers, detect_target_type
-from utils.visualization import create_histogram, create_bar_chart, create_boxplot, create_correlation_heatmap, create_target_classification_chart, create_target_regression_chart
-import plotly.express as px
 import streamlit as st
 import pandas as pd
+from utils.profiling import (get_data_quality, detect_outliers, detect_target_type)
+from utils.visualization import (create_histogram, create_bar_chart, 
+                                 create_boxplot, create_correlation_heatmap, 
+                                 create_target_classification_chart, create_target_regression_chart)
 
 st.set_page_config(page_title="Smart EDA Dashboard", page_icon="📊", layout="wide")
 st.title("Smart EDA Dashboard")
@@ -182,13 +183,8 @@ if uploaded_file is not None:
 
             # Metrics (horizontal table)
             metrics_df = pd.DataFrame(
-                [
-                    {
-                        "Number of Classes": f"{target.nunique():,}",
-                        "Missing Values": f"{target.isna().sum():,}",
-                    }
-                ]
-            )
+                [{"Number of Classes": f"{target.nunique():,}",
+                  "Missing Values": f"{target.isna().sum():,}"}])
             st.dataframe(metrics_df, use_container_width=True, hide_index=True)
         
             # Distribution
