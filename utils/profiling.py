@@ -1,6 +1,6 @@
 import pandas as pd
 
-
+# detect data quality metrics for a given DataFrame such as missing values, data types, and unique values
 def get_data_quality(df: pd.DataFrame) -> pd.DataFrame:
     quality = pd.DataFrame({
         "Column": df.columns,
@@ -14,7 +14,7 @@ def get_data_quality(df: pd.DataFrame) -> pd.DataFrame:
 
     return quality
 
-
+# detect outliers in a numerical series using the IQR method
 def detect_outliers(series: pd.Series) -> dict:
     series = series.dropna()
 
@@ -42,3 +42,15 @@ def detect_outliers(series: pd.Series) -> dict:
             len(outliers) / len(series) * 100
         )
     }
+
+# detect type of the target variable in a DataFrame (categorical or numerical)
+def detect_target_type(series: pd.Series) -> str:
+
+    if (
+        pd.api.types.is_object_dtype(series)
+        or pd.api.types.is_categorical_dtype(series)
+        or series.nunique() <= 10
+    ):
+        return "Classification"
+
+    return "Regression"
